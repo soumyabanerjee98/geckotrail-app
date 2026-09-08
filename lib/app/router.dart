@@ -6,6 +6,7 @@ import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
+import '../../features/auth/presentation/session_bootstrap_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/trails/presentation/trails_screen.dart';
 import '../../features/trails/presentation/trail_details_screen.dart';
@@ -40,23 +41,38 @@ class RouterRefreshNotifier extends ChangeNotifier {
 }
 
 final goRouterProvider = Provider<GoRouter>((ref) {
+  // routerRefreshProvider already listens to auth and starts restoreSession().
   final refresh = ref.watch(routerRefreshProvider);
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/home',
+    initialLocation: '/splash',
     refreshListenable: refresh,
     redirect: (context, state) {
       final auth = ref.read(authControllerProvider);
-      final loggingIn = state.matchedLocation.startsWith('/auth');
-      if (auth.status == AuthStatus.unknown) return null;
-      if (auth.status == AuthStatus.unauthenticated) {
-        return loggingIn ? null : '/auth/login';
+      final loc = state.matchedLocation;
+      final onSplash = loc == '/splash';
+      final loggingIn = loc.startsWith('/auth');
+
+      // Hold on bootstrap until tokens are hydrated and /users/me finishes.
+      if (auth.status == AuthStatus.unknown) {
+        return onSplash ? null : '/splash';
       }
-      if (loggingIn) return '/home';
+
+      if (auth.status == AuthStatus.unauthenticated) {
+        if (loggingIn) return null;
+        return '/auth/login';
+      }
+
+      // Authenticated: leave splash / auth screens.
+      if (onSplash || loggingIn) return '/home';
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SessionBootstrapScreen(),
+      ),
       GoRoute(
         path: '/auth/login',
         builder: (context, state) => const LoginScreen(),

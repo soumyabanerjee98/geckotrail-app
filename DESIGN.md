@@ -9,7 +9,7 @@ Source of truth: exported frames in [`design/`](design/). This document translat
 - **Community line:** ADVENTURE COMMUNITY OF INDIA
 - **Promise:** Earn the route through hosted rides — not a GPX storefront.
 
-Mark: white gecko silhouette on forest green (`assets/brand/app_icon.png`), generated from IconKitchen exports in `icons/`.
+Mark: white gecko silhouette on topo-patterned forest green (`assets/brand/app_icon.png`), sourced from IconKitchen exports in `assets/icons/`.
 
 ## Visual language
 

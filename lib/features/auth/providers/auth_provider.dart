@@ -96,7 +96,9 @@ class AuthController extends StateNotifier<AuthState> {
   final ApiClient _apiClient;
 
   Future<void> restoreSession() async {
+    state = const AuthState(status: AuthStatus.unknown);
     try {
+      await _tokenStorage.hydrate();
       final hasSession = await _tokenStorage.hasSession();
       if (!hasSession) {
         state = const AuthState(status: AuthStatus.unauthenticated);
