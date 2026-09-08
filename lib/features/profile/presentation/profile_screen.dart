@@ -23,7 +23,6 @@ class ProfileScreen extends ConsumerWidget {
     final name = user?.name ?? 'Rider';
 
     return TopoBackground(
-      dark: true,
       child: SafeArea(
         bottom: false,
         child: ListView(
@@ -35,16 +34,22 @@ class ProfileScreen extends ConsumerWidget {
                   child: Text(
                     'Rider Profile',
                     style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                          color: Colors.white,
-                          fontSize: 26,
+                          fontSize: 28,
                         ),
                   ),
                 ),
                 IconButton(
                   onPressed: () => context.push('/notifications'),
-                  icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                  icon: const Icon(Icons.notifications_outlined),
                 ),
               ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Your rider identity, unlocked routes, and host tools.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.stone,
+                  ),
             ),
             const SizedBox(height: 16),
             Container(
@@ -52,6 +57,7 @@ class ProfileScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(AppRadii.card),
+                border: Border.all(color: AppColors.sand),
               ),
               child: Row(
                 children: [
@@ -178,7 +184,7 @@ class ProfileScreen extends ConsumerWidget {
             const SizedBox(height: 20),
             const Text(
               'Recommendation points are private and not shown on your profile.',
-              style: TextStyle(color: Colors.white54, fontSize: 12),
+              style: TextStyle(color: AppColors.stone, fontSize: 12),
             ),
             const SizedBox(height: 16),
             if (user?.isHost == true)
@@ -186,6 +192,7 @@ class ProfileScreen extends ConsumerWidget {
                 tileColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
+                  side: const BorderSide(color: AppColors.sand),
                 ),
                 leading: const Icon(Icons.flag_outlined, color: AppColors.forest),
                 title: const Text('Host dashboard'),
@@ -194,10 +201,6 @@ class ProfileScreen extends ConsumerWidget {
               ),
             const SizedBox(height: 12),
             OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                side: const BorderSide(color: Colors.white54),
-              ),
               onPressed: () async {
                 await ref.read(authControllerProvider.notifier).logout();
               },
@@ -228,6 +231,7 @@ class _StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.sand),
       ),
       child: Column(
         children: [

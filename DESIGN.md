@@ -17,8 +17,8 @@ Two surface modes:
 
 | Mode | Use | Background |
 |------|-----|------------|
-| **Trail light** | Auth, Home, Trails, Events, Event details, Trail details | Warm cream `#F7F4EE` with faint topo contour lines |
-| **Night field** | My Routes, Profile, Ride HUD, Route completion | Near-black `#0C100E` with white / cream cards |
+| **Trail light** | Auth, Home, Trails, Events, Event details, Trail details, My Routes, Profile | Warm cream `#F7F4EE` with faint topo contour lines |
+| **Night field** | Ride HUD, Route completion | Near-black `#0C100E` with white / cream cards |
 
 Motifs:
 

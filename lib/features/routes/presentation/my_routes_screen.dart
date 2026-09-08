@@ -21,7 +21,6 @@ class MyRoutesScreen extends ConsumerWidget {
     final async = ref.watch(myRoutesProvider);
 
     return TopoBackground(
-      dark: true,
       child: SafeArea(
         bottom: false,
         child: Column(
@@ -35,7 +34,6 @@ class MyRoutesScreen extends ConsumerWidget {
                   Text(
                     'Your Unlocked Routes',
                     style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                          color: Colors.white,
                           fontSize: 28,
                         ),
                   ),
@@ -43,7 +41,7 @@ class MyRoutesScreen extends ConsumerWidget {
                   Text(
                     'Access routes earned by completing community rides.',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white70,
+                          color: AppColors.stone,
                         ),
                   ),
                 ],
@@ -87,8 +85,13 @@ class MyRoutesScreen extends ConsumerWidget {
                           child: InkWell(
                             onTap: () => context
                                 .push('/rides/${route.trailId}/navigate'),
-                            child: Padding(
+                            child: Container(
                               padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+                              decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.circular(AppRadii.card),
+                                border: Border.all(color: AppColors.sand),
+                              ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [

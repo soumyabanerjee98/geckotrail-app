@@ -21,19 +21,19 @@ class SessionBootstrapScreen extends StatelessWidget {
               Text(
                 'GECKO TRAIL',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.4,
-                    ),
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.4,
+                ),
               ),
               const SizedBox(height: 10),
               Text(
-                'RIDE. EXPLORE. EARN.',
+                'RIDE. EXPLORE. HAVE FUN.',
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: AppColors.ember,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.2,
-                    ),
+                  color: AppColors.ember,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                ),
               ),
               const SizedBox(height: 40),
               const SizedBox(
@@ -47,9 +47,9 @@ class SessionBootstrapScreen extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 'Checking your session…',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.white70,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
               ),
             ],
           ),
