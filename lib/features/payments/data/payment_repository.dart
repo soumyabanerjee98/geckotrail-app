@@ -6,9 +6,21 @@ class PaymentRepository {
 
   final ApiClient _api;
 
+  Future<List<PaymentOrder>> listMine() {
+    return _api.get(
+      '/payments/me',
+      parser: (data) {
+        final list = data is List ? data : (data['items'] as List? ?? const []);
+        return list
+            .map((e) => PaymentOrder.fromJson(e as Map<String, dynamic>))
+            .toList();
+      },
+    );
+  }
+
   Future<PaymentOrder> createOrder({required String eventId}) {
     return _api.post(
-      '/payments',
+      '/payments/orders',
       data: {'eventId': eventId},
       parser: (data) => PaymentOrder.fromJson(data as Map<String, dynamic>),
     );
@@ -21,8 +33,9 @@ class PaymentRepository {
     String? providerSignature,
   }) {
     return _api.post(
-      '/payments/$paymentId/verify',
+      '/payments/verify',
       data: {
+        'paymentId': paymentId,
         'providerOrderId': providerOrderId,
         'providerPaymentId': providerPaymentId,
         'providerSignature': ?providerSignature,

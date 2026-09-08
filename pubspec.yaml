@@ -39,3 +39,4 @@ flutter:
   assets:
     - .env
     - .env.example
+    - assets/brand/

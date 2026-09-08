@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../providers/auth_provider.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/design_system.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -45,71 +46,97 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppColors.forest, AppColors.moss, AppColors.mist],
-            stops: [0, 0.45, 1],
-          ),
-        ),
+      body: TopoBackground(
         child: SafeArea(
           child: ListView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
             children: [
-              const SizedBox(height: 48),
+              const Center(child: GeckoMark(size: 78)),
+              const SizedBox(height: 16),
               Text(
-                'Gecko Trail',
-                style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
+                'GECKO TRAIL',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      letterSpacing: 1.2,
+                      fontWeight: FontWeight.w800,
                     ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Welcome Back, Rider',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                      fontSize: 28,
+                    ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Access curated Indian trails, coordinates, and hosted group expeditions.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: AppColors.stone,
+                      height: 1.4,
+                    ),
+              ),
+              const SizedBox(height: 36),
+              const UpperLabel('Phone number or email'),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _email,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  hintText: 'arjun.riding@gmail.com',
+                  prefixIcon: Icon(Icons.mail_outline, color: AppColors.stone),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  const Expanded(child: UpperLabel('Password')),
+                  TextButton(
+                    onPressed: () => context.push('/auth/forgot-password'),
+                    child: const Text('Forgot Password?'),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
-              Text(
-                'Earn the route. Ride with trust.',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.85),
-                    ),
+              TextField(
+                controller: _password,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  hintText: '••••••••',
+                  prefixIcon: Icon(Icons.lock_outline, color: AppColors.stone),
+                ),
               ),
-              const SizedBox(height: 48),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextField(
-                        controller: _email,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(labelText: 'Email'),
+              if (_error != null) ...[
+                const SizedBox(height: 12),
+                Text(_error!, style: const TextStyle(color: AppColors.danger)),
+              ],
+              const SizedBox(height: 28),
+              ElevatedButton(
+                onPressed: _loading ? null : _submit,
+                child: Text(_loading ? 'Signing in…' : 'Sign In to Trail'),
+              ),
+              const SizedBox(height: 24),
+              Center(
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      'New to Gecko Trail? ',
+                      style: TextStyle(color: AppColors.stone.withValues(alpha: 0.9)),
+                    ),
+                    TextButton(
+                      onPressed: () => context.push('/auth/register'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.forest,
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _password,
-                        obscureText: true,
-                        decoration: const InputDecoration(labelText: 'Password'),
-                      ),
-                      if (_error != null) ...[
-                        const SizedBox(height: 12),
-                        Text(_error!, style: const TextStyle(color: AppColors.danger)),
-                      ],
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _loading ? null : _submit,
-                        child: Text(_loading ? 'Signing in…' : 'Sign in'),
-                      ),
-                      TextButton(
-                        onPressed: () => context.push('/auth/forgot-password'),
-                        child: const Text('Forgot password?'),
-                      ),
-                      TextButton(
-                        onPressed: () => context.push('/auth/register'),
-                        child: const Text('Create an account'),
-                      ),
-                    ],
-                  ),
+                      child: const Text('Create Account'),
+                    ),
+                  ],
                 ),
               ),
             ],

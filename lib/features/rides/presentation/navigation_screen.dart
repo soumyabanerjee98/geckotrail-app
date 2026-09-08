@@ -166,9 +166,12 @@ class _NavigationScreenState extends ConsumerState<NavigationScreen> {
   @override
   Widget build(BuildContext context) {
     final geometryAsync = ref.watch(routeGeometryProvider(widget.trailId));
+    final elapsed = _startedAt == null
+        ? '00:00:00'
+        : _formatDuration(DateTime.now().difference(_startedAt!));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Navigate')),
+      backgroundColor: AppColors.night,
       body: geometryAsync.when(
         loading: () => const LoadingView(message: 'Loading authorized route…'),
         error: (e, _) => ErrorView(
@@ -180,7 +183,7 @@ class _NavigationScreenState extends ConsumerState<NavigationScreen> {
         data: (geometry) {
           final polyline = Polyline(
             polylineId: const PolylineId('route'),
-            color: AppColors.forest,
+            color: AppColors.ember,
             width: 5,
             points: geometry.points
                 .map((p) => LatLng(p.latitude, p.longitude))
@@ -193,11 +196,80 @@ class _NavigationScreenState extends ConsumerState<NavigationScreen> {
           );
           return Column(
             children: [
+              Container(
+                width: double.infinity,
+                color: AppColors.forest,
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  MediaQuery.paddingOf(context).top + 12,
+                  20,
+                  16,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Trail ride',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(color: Colors.white),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.success,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.circle, size: 8, color: Colors.white),
+                              SizedBox(width: 6),
+                              Text(
+                                'GPS ACTIVE',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        _HudStat(label: 'Elapsed time', value: elapsed),
+                        _HudStat(
+                          label: 'Distance covered',
+                          value:
+                              '${(_distanceMeters / 1000).toStringAsFixed(1)} km',
+                        ),
+                        _HudStat(
+                          label: 'Sync',
+                          value: _syncState.name.toUpperCase(),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
               Expanded(
                 child: GoogleMap(
                   initialCameraPosition: initial,
                   myLocationEnabled: true,
                   myLocationButtonEnabled: true,
+                  mapType: MapType.hybrid,
                   polylines: {polyline},
                   markers: {
                     if (geometry.start != null)
@@ -220,27 +292,39 @@ class _NavigationScreenState extends ConsumerState<NavigationScreen> {
                   onMapCreated: (controller) => _mapController = controller,
                 ),
               ),
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
+              Container(
+                decoration: const BoxDecoration(
+                  color: AppColors.nightElevated,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: SafeArea(
+                  top: false,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
-                        'Distance: ${(_distanceMeters / 1000).toStringAsFixed(2)} km · Sync: ${_syncState.name}',
-                      ),
-                      if (_message != null) Text(_message!),
-                      const SizedBox(height: 8),
+                      if (_message != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            _message!,
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                        ),
                       if (_buffer == null)
                         ElevatedButton(
                           onPressed: _busy ? null : _startRide,
                           child: Text(_busy ? 'Starting…' : 'Start ride'),
                         )
-                      else ...[
+                      else
                         Row(
                           children: [
                             Expanded(
-                              child: OutlinedButton(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.ember,
+                                  foregroundColor: Colors.white,
+                                ),
                                 onPressed: () {
                                   setState(() {
                                     _status = _status == RideStatus.paused
@@ -249,20 +333,27 @@ class _NavigationScreenState extends ConsumerState<NavigationScreen> {
                                   });
                                 },
                                 child: Text(
-                                  _status == RideStatus.paused ? 'Resume' : 'Pause',
+                                  _status == RideStatus.paused
+                                      ? 'Resume Ride'
+                                      : 'Pause Ride',
                                 ),
                               ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.danger,
+                                  foregroundColor: Colors.white,
+                                ),
                                 onPressed: _busy ? null : _complete,
-                                child: Text(_busy ? 'Finishing…' : 'Complete'),
+                                child: Text(
+                                  _busy ? 'Finishing…' : 'End Ride',
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      ],
                     ],
                   ),
                 ),
@@ -270,6 +361,48 @@ class _NavigationScreenState extends ConsumerState<NavigationScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  String _formatDuration(Duration d) {
+    final h = d.inHours.toString().padLeft(2, '0');
+    final m = (d.inMinutes % 60).toString().padLeft(2, '0');
+    final s = (d.inSeconds % 60).toString().padLeft(2, '0');
+    return '$h:$m:$s';
+  }
+}
+
+class _HudStat extends StatelessWidget {
+  const _HudStat({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.6,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              fontSize: 16,
+            ),
+          ),
+        ],
       ),
     );
   }

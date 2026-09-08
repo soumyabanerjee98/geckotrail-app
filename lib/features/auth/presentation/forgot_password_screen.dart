@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../providers/auth_provider.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/design_system.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -48,37 +49,64 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Forgot password')),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          const Text(
-            'Enter your email and we will send reset instructions if an account exists.',
+      body: TopoBackground(
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  onPressed: () => context.pop(),
+                  icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Reset password',
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                      fontSize: 28,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Enter your email and we will send reset instructions if an account exists.',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: AppColors.stone,
+                    ),
+              ),
+              const SizedBox(height: 28),
+              const UpperLabel('Email'),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _email,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  hintText: 'arjun.riding@gmail.com',
+                  prefixIcon: Icon(Icons.mail_outline, color: AppColors.stone),
+                ),
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: 12),
+                Text(_error!, style: const TextStyle(color: AppColors.danger)),
+              ],
+              if (_message != null) ...[
+                const SizedBox(height: 12),
+                Text(_message!, style: const TextStyle(color: AppColors.success)),
+              ],
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _loading ? null : _submit,
+                child: Text(_loading ? 'Sending…' : 'Send reset link'),
+              ),
+              TextButton(
+                onPressed: () => context.go('/auth/login'),
+                style: TextButton.styleFrom(foregroundColor: AppColors.forest),
+                child: const Text('Back to sign in'),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _email,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(labelText: 'Email'),
-          ),
-          if (_error != null) ...[
-            const SizedBox(height: 12),
-            Text(_error!, style: const TextStyle(color: AppColors.danger)),
-          ],
-          if (_message != null) ...[
-            const SizedBox(height: 12),
-            Text(_message!, style: const TextStyle(color: AppColors.success)),
-          ],
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _loading ? null : _submit,
-            child: Text(_loading ? 'Sending…' : 'Send reset link'),
-          ),
-          TextButton(
-            onPressed: () => context.go('/auth/login'),
-            child: const Text('Back to sign in'),
-          ),
-        ],
+        ),
       ),
     );
   }

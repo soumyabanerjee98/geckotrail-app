@@ -40,10 +40,13 @@ class Enrollment extends Equatable {
   final EnrollmentStatus status;
 
   factory Enrollment.fromJson(Map<String, dynamic> json) {
+    final nestedEvent = json['event'];
+    final eventId = json['eventId']?.toString() ??
+        (nestedEvent is Map ? nestedEvent['id']?.toString() : null);
     return Enrollment(
       id: json['id'].toString(),
-      eventId: json['eventId'].toString(),
-      riderId: json['riderId'].toString(),
+      eventId: eventId ?? '',
+      riderId: (json['riderId'] ?? json['userId'])?.toString() ?? '',
       paymentId: json['paymentId']?.toString(),
       status: _parseEnrollment(json['status']?.toString()),
     );
@@ -127,6 +130,9 @@ EnrollmentStatus _parseEnrollment(String? value) {
       return EnrollmentStatus.attended;
     case 'NO_SHOW':
       return EnrollmentStatus.noShow;
+    case 'PENDING_PAYMENT':
+    case 'PENDING':
+      return EnrollmentStatus.pendingPayment;
     default:
       return EnrollmentStatus.pendingPayment;
   }
@@ -142,6 +148,8 @@ PaymentStatus _parsePayment(String? value) {
       return PaymentStatus.failed;
     case 'REFUNDED':
       return PaymentStatus.refunded;
+    case 'INITIATED':
+      return PaymentStatus.initiated;
     default:
       return PaymentStatus.initiated;
   }

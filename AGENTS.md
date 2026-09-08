@@ -52,6 +52,24 @@ cp .env.example .env
 
 Loaded at startup with `flutter_dotenv` via `AppConfig.load()`.
 
+## API surface (rider app)
+
+Repositories call paths under `AppConfig.apiPrefix` (`/api/v1`) unless noted:
+
+| Area | Methods |
+|------|---------|
+| Health | `GET /health` (origin root, via `ApiClient.health`) |
+| Auth | `POST /auth/register`, `/login`, `/refresh`, `/logout` |
+| Users | `GET` / `PATCH /users/me` |
+| Regions | `GET /regions`, `GET /regions/:id` |
+| Trails | `GET /trails`, `GET /trails/:id` |
+| Events | `GET /events`, `GET /events/:id`, `POST /events`, `PATCH /events/:id`, `POST /events/:id/enrol` |
+| Enrollments | `GET /enrollments/me`, `GET /enrollments/:id` |
+| Payments | `GET /payments/me`, `POST /payments/orders`, `POST /payments/verify`, `GET /payments/:id` |
+
+Admin-only and Razorpay webhook routes are backend-only; the rider app does not call them.
+`GET /hosts` is stubbed (501) on the backend.
+
 ## Context docs
 
 Before changing product behaviour, read:
@@ -59,7 +77,8 @@ Before changing product behaviour, read:
 1. `PROJECT_CONTEXT_MVP.md`
 2. `BACKEND_PROJECT_CONTEXT.md`
 3. `APP_FRONTEND_PROJECT_CONTEXT.md`
-4. This file
+4. `DESIGN.md` (UI tokens & screen patterns from `design/`)
+5. This file
 
 ## Quality bar
 

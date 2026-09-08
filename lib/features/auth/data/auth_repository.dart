@@ -29,6 +29,13 @@ class AuthRepository {
     );
   }
 
+  Future<void> logout() async {
+    await _api.post(
+      '/auth/logout',
+      parser: (_) => true,
+    );
+  }
+
   Future<void> forgotPassword({required String email}) async {
     await _api.post(
       '/auth/forgot-password',
@@ -40,6 +47,14 @@ class AuthRepository {
   Future<UserProfile> me() {
     return _api.get(
       '/users/me',
+      parser: (data) => UserProfile.fromJson(data as Map<String, dynamic>),
+    );
+  }
+
+  Future<UserProfile> updateMe(Map<String, dynamic> payload) {
+    return _api.patch(
+      '/users/me',
+      data: payload,
       parser: (data) => UserProfile.fromJson(data as Map<String, dynamic>),
     );
   }

@@ -128,8 +128,11 @@ class ProfileRepository {
   final ApiClient _api;
 
   Future<Map<String, dynamic>> getProfile([String? userId]) {
-    final path = userId == null ? '/users/me' : '/users/$userId';
-    return _api.get(path, parser: (data) => data as Map<String, dynamic>);
+    // Rider app only has GET /users/me; admin user-by-id is under /admin/users/:id.
+    return _api.get(
+      '/users/me',
+      parser: (data) => data as Map<String, dynamic>,
+    );
   }
 
   Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> payload) {

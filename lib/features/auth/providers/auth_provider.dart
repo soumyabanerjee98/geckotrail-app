@@ -7,6 +7,7 @@ import '../data/auth_repository.dart';
 import '../../trails/data/trail_repository.dart';
 import '../../events/data/event_repository.dart';
 import '../../payments/data/payment_repository.dart';
+import '../../regions/data/region_repository.dart';
 import '../../routes/data/route_repository.dart';
 import '../../../core/location/location_service.dart';
 
@@ -24,6 +25,10 @@ final eventRepositoryProvider = Provider<EventRepository>((ref) {
 
 final paymentRepositoryProvider = Provider<PaymentRepository>((ref) {
   return PaymentRepository(ref.watch(apiClientProvider));
+});
+
+final regionRepositoryProvider = Provider<RegionRepository>((ref) {
+  return RegionRepository(ref.watch(apiClientProvider));
 });
 
 final routeRepositoryProvider = Provider<RouteRepository>((ref) {
@@ -156,6 +161,11 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    try {
+      await _authRepository.logout();
+    } catch (_) {
+      // Clear local session even if the server logout call fails.
+    }
     await _tokenStorage.clear();
     state = const AuthState(status: AuthStatus.unauthenticated);
   }

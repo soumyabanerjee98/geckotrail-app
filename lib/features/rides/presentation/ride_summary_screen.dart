@@ -18,42 +18,109 @@ class RideSummaryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ride summary')),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Icon(
-              verified ? Icons.verified : Icons.info_outline,
-              size: 64,
-              color: verified ? AppColors.success : AppColors.clay,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              verified ? 'Route completed' : 'Ride recorded',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              verified
-                  ? (message ?? 'Familiarity updated by the backend.')
-                  : (message ??
-                      'Completion could not be verified. Your ride was recorded.'),
-            ),
-            if (verified && familiarityLevel != null) ...[
+      backgroundColor: AppColors.night,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
               const SizedBox(height: 12),
+              Center(
+                child: Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    verified ? Icons.verified_user : Icons.info_outline,
+                    size: 36,
+                    color: verified ? AppColors.success : AppColors.ember,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
               Text(
-                'Familiarity: $familiarityLevel',
-                style: const TextStyle(fontWeight: FontWeight.w700),
+                verified ? 'Route Completed!' : 'Ride recorded',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                      color: AppColors.moss,
+                      fontSize: 28,
+                    ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                message ??
+                    (verified
+                        ? 'Familiarity updated by the backend.'
+                        : 'Completion could not be verified. Your ride was recorded.'),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.ember,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 24),
+              if (verified && familiarityLevel != null)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.cream,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Familiarity Upgraded!',
+                        style: TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          const Text(
+                            'Familiar',
+                            style: TextStyle(
+                              color: AppColors.stone,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.all(Radius.circular(999)),
+                              child: LinearProgressIndicator(
+                                value: 0.8,
+                                minHeight: 8,
+                                backgroundColor: AppColors.sand,
+                                color: AppColors.forest,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            familiarityLevel!,
+                            style: const TextStyle(
+                              color: AppColors.forest,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              const Spacer(),
+              ElevatedButton(
+                onPressed: () => context.go('/my-routes'),
+                child: const Text('Back to My Routes'),
               ),
             ],
-            const Spacer(),
-            ElevatedButton(
-              onPressed: () => context.go('/my-routes'),
-              child: const Text('Back to My Routes'),
-            ),
-          ],
+          ),
         ),
       ),
     );

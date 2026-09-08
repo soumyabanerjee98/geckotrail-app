@@ -106,7 +106,26 @@ class ApiClient {
     return path.contains('/auth/login') ||
         path.contains('/auth/register') ||
         path.contains('/auth/refresh') ||
+        path.contains('/auth/logout') ||
         path.contains('/auth/forgot-password');
+  }
+
+  /// Backend liveness probe lives outside `/api/v1`.
+  Future<bool> health() async {
+    try {
+      final response = await Dio(
+        BaseOptions(
+          baseUrl: AppConfig.apiBaseUrl,
+          connectTimeout: AppConfig.httpTimeout,
+          receiveTimeout: AppConfig.httpTimeout,
+        ),
+      ).get<dynamic>('/health');
+      return response.statusCode != null &&
+          response.statusCode! >= 200 &&
+          response.statusCode! < 300;
+    } on DioException catch (e) {
+      throw _mapError(e);
+    }
   }
 
   Future<void> _refreshToken() async {

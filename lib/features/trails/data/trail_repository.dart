@@ -30,9 +30,11 @@ class TrailRepository {
     );
   }
 
+  /// Events for a trail via GET /events?trailId=… (no dedicated trail events route).
   Future<List<HostedEvent>> trailEvents(String trailId) {
     return _api.get(
-      '/trails/$trailId/events',
+      '/events',
+      query: {'trailId': trailId},
       parser: (data) {
         final list = data is List ? data : (data['items'] as List? ?? const []);
         return list
