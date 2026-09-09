@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import '../../../core/networking/api_client.dart';
 import '../../../shared/models/user.dart';
 
@@ -56,6 +58,25 @@ class AuthRepository {
       '/users/me',
       data: payload,
       parser: (data) => UserProfile.fromJson(data as Map<String, dynamic>),
+    );
+  }
+
+  /// Multipart profile photo. Prefer `POST /users/me/photo`; field names `photo`/`file`.
+  Future<UserProfile> uploadPhoto({
+    required String filePath,
+    required String fileName,
+  }) async {
+    final form = FormData.fromMap({
+      'photo': await MultipartFile.fromFile(filePath, filename: fileName),
+    });
+    return _api.postMultipart(
+      '/users/me/photo',
+      data: form,
+      parser: (data) => UserProfile.fromJson(
+        data is Map<String, dynamic>
+            ? data
+            : Map<String, dynamic>.from(data as Map),
+      ),
     );
   }
 }

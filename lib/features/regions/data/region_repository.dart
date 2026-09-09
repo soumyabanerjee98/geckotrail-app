@@ -24,4 +24,20 @@ class RegionRepository {
       parser: (data) => Region.fromJson(data as Map<String, dynamic>),
     );
   }
+
+  Future<Region> createRegion(Map<String, dynamic> payload) {
+    return _api.post(
+      '/regions',
+      data: payload,
+      parser: (data) => Region.fromJson(data as Map<String, dynamic>),
+    );
+  }
+
+  Future<Region> updateRegion(String regionId, Map<String, dynamic> payload) {
+    return _api.patch(
+      '/regions/$regionId',
+      data: payload,
+      parser: (data) => Region.fromJson(data as Map<String, dynamic>),
+    );
+  }
 }

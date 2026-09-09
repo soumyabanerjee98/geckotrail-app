@@ -133,13 +133,20 @@ class EventRepository {
 
   Future<List<EventParticipant>> participants(String eventId) {
     return _api.get(
-      '/events/$eventId/participants',
+      '/events/$eventId/attendance',
       parser: (data) {
         final list = data is List ? data : (data['items'] as List? ?? const []);
         return list
             .map((e) => EventParticipant.fromJson(e as Map<String, dynamic>))
             .toList();
       },
+    );
+  }
+
+  Future<HostedEvent> startEvent(String eventId) {
+    return _api.post(
+      '/events/$eventId/start',
+      parser: (data) => HostedEvent.fromJson(data as Map<String, dynamic>),
     );
   }
 
@@ -161,12 +168,20 @@ class EventRepository {
     String? note,
   }) async {
     await _api.post(
-      '/events/$eventId/recommendations',
+      '/recommendations/events/$eventId/awards',
       data: {
         'riderId': riderId,
         'points': points,
         'note': ?note,
       },
+      parser: (_) => true,
+    );
+  }
+
+  Future<void> suspendEvent(String eventId) async {
+    await _api.patch(
+      '/events/$eventId',
+      data: {'status': 'CANCELLED'},
       parser: (_) => true,
     );
   }

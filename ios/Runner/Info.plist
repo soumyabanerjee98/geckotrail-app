@@ -57,6 +57,12 @@
 	<string>Gecko Trail needs your location to verify event attendance and navigate unlocked routes.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Background location may be used while an active ride is being recorded.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Gecko Trail needs photo access so you can set your rider profile picture.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Gecko Trail needs camera access so you can take a profile photo.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Gecko Trail may save photos you capture for your rider profile.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>

@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import '../../../core/networking/api_client.dart';
 import '../../../shared/models/trail.dart';
 import '../../../shared/models/event.dart';
@@ -7,12 +9,17 @@ class TrailRepository {
 
   final ApiClient _api;
 
-  Future<List<TrailSummary>> listTrails({String? region, String? query}) {
+  Future<List<TrailSummary>> listTrails({
+    String? region,
+    String? query,
+    bool? ecoSensitive,
+  }) {
     return _api.get(
       '/trails',
       query: {
         'region': ?region,
         if (query != null && query.isNotEmpty) 'q': query,
+        if (ecoSensitive == true) 'ecoSensitive': true,
       },
       parser: (data) {
         final list = data is List ? data : (data['items'] as List? ?? const []);
@@ -30,7 +37,6 @@ class TrailRepository {
     );
   }
 
-  /// Events for a trail via GET /events?trailId=… (no dedicated trail events route).
   Future<List<HostedEvent>> trailEvents(String trailId) {
     return _api.get(
       '/events',
@@ -54,6 +60,37 @@ class TrailRepository {
             .map((e) => TrailSummary.fromJson(e as Map<String, dynamic>))
             .toList();
       },
+    );
+  }
+
+  Future<TrailDetails> createTrail(Map<String, dynamic> payload) {
+    return _api.post(
+      '/trails',
+      data: payload,
+      parser: (data) => TrailDetails.fromJson(data as Map<String, dynamic>),
+    );
+  }
+
+  Future<TrailDetails> updateTrail(String trailId, Map<String, dynamic> payload) {
+    return _api.patch(
+      '/trails/$trailId',
+      data: payload,
+      parser: (data) => TrailDetails.fromJson(data as Map<String, dynamic>),
+    );
+  }
+
+  Future<void> uploadGpx({
+    required String trailId,
+    required String filePath,
+    required String fileName,
+  }) async {
+    final form = FormData.fromMap({
+      'file': await MultipartFile.fromFile(filePath, filename: fileName),
+    });
+    await _api.postMultipart(
+      '/trails/$trailId/gpx',
+      data: form,
+      parser: (_) => true,
     );
   }
 }

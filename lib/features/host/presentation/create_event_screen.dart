@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../auth/providers/auth_provider.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/design_system.dart';
 
 class CreateEventScreen extends ConsumerStatefulWidget {
   const CreateEventScreen({super.key});
@@ -83,53 +85,132 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Create event')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          TextField(controller: _title, decoration: const InputDecoration(labelText: 'Title')),
-          const SizedBox(height: 12),
-          TextField(controller: _trailId, decoration: const InputDecoration(labelText: 'Trail ID')),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _price,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Price (INR)'),
+    return TopoBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () => context.pop(),
+                    icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                  ),
+                  Text(
+                    'Create Hosted Ride',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Publish a marshal-led expedition on a curated trail.',
+                style: TextStyle(color: AppColors.stone),
+              ),
+              const SizedBox(height: 20),
+              const UpperLabel('Ride title'),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _title,
+                decoration: const InputDecoration(hintText: 'Spiti Dawn Run'),
+              ),
+              const SizedBox(height: 14),
+              const UpperLabel('Trail ID'),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _trailId,
+                decoration: const InputDecoration(hintText: 'Published trail UUID'),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const UpperLabel('Price (INR)'),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: _price,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(hintText: '2499'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const UpperLabel('Capacity'),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: _capacity,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(hintText: '12'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              const UpperLabel('Meetup coordinates'),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _lat,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(hintText: 'Latitude'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: _lng,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(hintText: 'Longitude'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              const UpperLabel('Requirements'),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _requirements,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  hintText: 'ADV bike, cold-weather kit…',
+                ),
+              ),
+              const SizedBox(height: 14),
+              OutlinedButton.icon(
+                onPressed: _pickStart,
+                icon: const Icon(Icons.schedule),
+                label: Text(
+                  _start == null
+                      ? 'Pick start date / time'
+                      : DateFormat('EEE, MMM d · HH:mm').format(_start!),
+                ),
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: 12),
+                Text(_error!, style: const TextStyle(color: AppColors.danger)),
+              ],
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _busy ? null : _submit,
+                child: Text(_busy ? 'Creating…' : 'Publish Ride'),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _capacity,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Capacity'),
-          ),
-          const SizedBox(height: 12),
-          TextField(controller: _lat, decoration: const InputDecoration(labelText: 'Meetup latitude')),
-          const SizedBox(height: 12),
-          TextField(controller: _lng, decoration: const InputDecoration(labelText: 'Meetup longitude')),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _requirements,
-            maxLines: 3,
-            decoration: const InputDecoration(labelText: 'Requirements'),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: _pickStart,
-            child: Text(
-              _start == null ? 'Pick start date/time' : _start!.toLocal().toString(),
-            ),
-          ),
-          if (_error != null) ...[
-            const SizedBox(height: 12),
-            Text(_error!, style: const TextStyle(color: AppColors.danger)),
-          ],
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _busy ? null : _submit,
-            child: Text(_busy ? 'Creating…' : 'Create event'),
-          ),
-        ],
+        ),
       ),
     );
   }

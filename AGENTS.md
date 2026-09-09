@@ -26,7 +26,8 @@ The Flutter client **reflects** backend state. It must never grant access, inven
 - AI recommendations or social feed
 - Live rider tracking
 - Subscriptions / region passes
-- Admin/operations console in the rider app
+
+Host and admin tooling live in this app (Profile entry points). Backend roles/entitlements remain source of truth.
 
 ## Architecture
 
@@ -52,7 +53,7 @@ cp .env.example .env
 
 Loaded at startup with `flutter_dotenv` via `AppConfig.load()`.
 
-## API surface (rider app)
+## API surface (app)
 
 Repositories call paths under `AppConfig.apiPrefix` (`/api/v1`) unless noted:
 
@@ -60,15 +61,18 @@ Repositories call paths under `AppConfig.apiPrefix` (`/api/v1`) unless noted:
 |------|---------|
 | Health | `GET /health` (origin root, via `ApiClient.health`) |
 | Auth | `POST /auth/register`, `/login`, `/refresh`, `/logout` |
-| Users | `GET` / `PATCH /users/me` |
-| Regions | `GET /regions`, `GET /regions/:id` |
-| Trails | `GET /trails`, `GET /trails/:id` |
-| Events | `GET /events`, `GET /events/:id`, `POST /events`, `PATCH /events/:id`, `POST /events/:id/enrol` |
+| Users | `GET` / `PATCH /users/me`, `POST /users/me/photo` (multipart avatar) |
+| Hosts | `POST /hosts/apply`, `GET` / `PATCH /hosts/me`, `GET /hosts/:userId` |
+| Regions | `GET /regions`, `GET /regions/:id`, `POST` / `PATCH` (ADMIN) |
+| Trails | `GET /trails`, `GET /trails/:id`, `POST` / `PATCH`, `POST /trails/:id/gpx` (ADMIN) |
+| Events | `GET /events`, `GET /events/:id`, `POST` / `PATCH` (HOST), enrol/attendance/start/complete/host-rating |
 | Enrollments | `GET /enrollments/me`, `GET /enrollments/:id` |
 | Payments | `GET /payments/me`, `POST /payments/orders`, `POST /payments/verify`, `GET /payments/:id` |
+| Access | `GET /access/me/routes`, `GET /access/:trailId`, `GET /access/:trailId/route` |
+| Rides / familiarity / recommendations / notifications | as listed in backend contract |
+| Admin | `GET` / `POST` / `PATCH /admin/users`, `POST /admin/hosts/:id/approve`, `GET /admin/payments` |
 
-Admin-only and Razorpay webhook routes are backend-only; the rider app does not call them.
-`GET /hosts` is stubbed (501) on the backend.
+Razorpay webhook is backend-only. Client never invents host/admin privileges.
 
 ## Context docs
 

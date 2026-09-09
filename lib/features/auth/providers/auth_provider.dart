@@ -9,6 +9,7 @@ import '../../events/data/event_repository.dart';
 import '../../payments/data/payment_repository.dart';
 import '../../regions/data/region_repository.dart';
 import '../../routes/data/route_repository.dart';
+import '../../host/data/host_repository.dart';
 import '../../../core/location/location_service.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
@@ -29,6 +30,14 @@ final paymentRepositoryProvider = Provider<PaymentRepository>((ref) {
 
 final regionRepositoryProvider = Provider<RegionRepository>((ref) {
   return RegionRepository(ref.watch(apiClientProvider));
+});
+
+final hostRepositoryProvider = Provider<HostRepository>((ref) {
+  return HostRepository(ref.watch(apiClientProvider));
+});
+
+final adminRepositoryProvider = Provider<AdminRepository>((ref) {
+  return AdminRepository(ref.watch(apiClientProvider));
 });
 
 final routeRepositoryProvider = Provider<RouteRepository>((ref) {
@@ -104,9 +113,25 @@ class AuthController extends StateNotifier<AuthState> {
         state = const AuthState(status: AuthStatus.unauthenticated);
         return;
       }
+
+      // Restore cached profile immediately so Profile/UI survive hard restarts
+      // while /users/me refreshes in the background.
+      final cached = _tokenStorage.cachedUser;
+      if (cached != null) {
+        state = AuthState(status: AuthStatus.authenticated, user: cached);
+      }
+
       final user = await _authRepository.me();
+      await _tokenStorage.saveUser(user);
       state = AuthState(status: AuthStatus.authenticated, user: user);
     } catch (_) {
+      // Keep cached authenticated user if tokens still look valid but /me failed
+      // transiently; only clear when we have no cache to fall back on.
+      final cached = _tokenStorage.cachedUser;
+      if (cached != null && await _tokenStorage.hasSession()) {
+        state = AuthState(status: AuthStatus.authenticated, user: cached);
+        return;
+      }
       await _tokenStorage.clear();
       state = const AuthState(status: AuthStatus.unauthenticated);
     }
@@ -116,11 +141,17 @@ class AuthController extends StateNotifier<AuthState> {
     state = state.copyWith(clearError: true);
     try {
       final session = await _authRepository.login(email: email, password: password);
+      var user = session.user;
       await _tokenStorage.saveTokens(
         accessToken: session.tokens.accessToken,
         refreshToken: session.tokens.refreshToken,
       );
-      state = AuthState(status: AuthStatus.authenticated, user: session.user);
+      // Prefer full /users/me when login payload is token-only / partial.
+      if (user.id.isEmpty || user.name.isEmpty) {
+        user = await _authRepository.me();
+      }
+      await _tokenStorage.saveUser(user);
+      state = AuthState(status: AuthStatus.authenticated, user: user);
     } catch (e) {
       state = state.copyWith(
         status: AuthStatus.unauthenticated,
@@ -143,11 +174,16 @@ class AuthController extends StateNotifier<AuthState> {
         email: email,
         password: password,
       );
+      var user = session.user;
       await _tokenStorage.saveTokens(
         accessToken: session.tokens.accessToken,
         refreshToken: session.tokens.refreshToken,
       );
-      state = AuthState(status: AuthStatus.authenticated, user: session.user);
+      if (user.id.isEmpty || user.name.isEmpty) {
+        user = await _authRepository.me();
+      }
+      await _tokenStorage.saveUser(user);
+      state = AuthState(status: AuthStatus.authenticated, user: user);
     } catch (e) {
       state = state.copyWith(
         status: AuthStatus.unauthenticated,
@@ -174,7 +210,34 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<void> refreshUser() async {
     final user = await _authRepository.me();
+    await _tokenStorage.saveUser(user);
     state = AuthState(status: AuthStatus.authenticated, user: user);
+  }
+
+  Future<UserProfile> updateProfile({
+    required Map<String, dynamic> payload,
+    String? photoPath,
+    String? photoFileName,
+  }) async {
+    var user = state.user;
+    if (photoPath != null && photoFileName != null) {
+      user = await _authRepository.uploadPhoto(
+        filePath: photoPath,
+        fileName: photoFileName,
+      );
+      await _tokenStorage.saveUser(user);
+      state = AuthState(status: AuthStatus.authenticated, user: user);
+    }
+    if (payload.isNotEmpty) {
+      user = await _authRepository.updateMe(payload);
+      await _tokenStorage.saveUser(user);
+      state = AuthState(status: AuthStatus.authenticated, user: user);
+    } else if (user != null) {
+      user = await _authRepository.me();
+      await _tokenStorage.saveUser(user);
+      state = AuthState(status: AuthStatus.authenticated, user: user);
+    }
+    return user!;
   }
 }
 

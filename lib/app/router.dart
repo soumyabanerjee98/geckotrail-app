@@ -18,10 +18,17 @@ import '../../features/routes/presentation/my_routes_screen.dart';
 import '../../features/rides/presentation/navigation_screen.dart';
 import '../../features/rides/presentation/ride_summary_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/host/presentation/host_dashboard_screen.dart';
 import '../../features/host/presentation/create_event_screen.dart';
 import '../../features/host/presentation/host_event_details_screen.dart';
+import '../../features/host/presentation/become_host_screen.dart';
+import '../../features/admin/presentation/admin_dashboard_screen.dart';
+import '../../features/admin/presentation/admin_host_approvals_screen.dart';
+import '../../features/admin/presentation/admin_trails_screen.dart';
+import '../../features/admin/presentation/admin_regions_screen.dart';
+import '../../features/admin/presentation/admin_events_screen.dart';
 import '../../features/shell/main_shell.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -155,6 +162,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const NotificationsScreen(),
       ),
       GoRoute(
+        path: '/profile/edit',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: '/host/apply',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const BecomeHostScreen(),
+      ),
+      GoRoute(
         path: '/host',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const HostDashboardScreen(),
@@ -170,6 +187,45 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => HostEventDetailsScreen(
           eventId: state.pathParameters['eventId']!,
         ),
+      ),
+      ShellRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state, child) => AdminShell(
+          location: state.matchedLocation,
+          child: child,
+        ),
+        routes: [
+          GoRoute(
+            path: '/admin',
+            builder: (context, state) => const AdminDashboardScreen(),
+          ),
+          GoRoute(
+            path: '/admin/hosts',
+            builder: (context, state) => const AdminHostApprovalsScreen(),
+          ),
+          GoRoute(
+            path: '/admin/trails',
+            builder: (context, state) => const AdminTrailsScreen(),
+          ),
+          GoRoute(
+            path: '/admin/regions',
+            builder: (context, state) => const AdminRegionsScreen(),
+          ),
+          GoRoute(
+            path: '/admin/events',
+            builder: (context, state) => const AdminEventsScreen(),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/admin/trails/create',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AdminUploadTrailScreen(),
+      ),
+      GoRoute(
+        path: '/admin/regions/create',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AdminUploadRegionScreen(),
       ),
     ],
   );

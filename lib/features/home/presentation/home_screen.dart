@@ -10,6 +10,7 @@ import '../../../shared/widgets/trail_card.dart';
 import '../../../shared/widgets/event_card.dart';
 import '../../../shared/widgets/async_body.dart';
 import '../../../shared/widgets/design_system.dart';
+import '../../../shared/widgets/profile_avatar_hero.dart';
 import '../../../shared/theme/app_theme.dart';
 
 final homeFeaturedProvider = FutureProvider.autoDispose<List<TrailSummary>>((ref) {
@@ -77,23 +78,11 @@ class HomeScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      CircleAvatar(
+                      ProfileAvatarHero(
                         radius: 24,
-                        backgroundColor: AppColors.forest,
-                        backgroundImage: user?.photoUrl != null
-                            ? NetworkImage(user!.photoUrl!)
-                            : null,
-                        child: user?.photoUrl == null
-                            ? Text(
-                                firstName.isNotEmpty
-                                    ? firstName[0].toUpperCase()
-                                    : 'R',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              )
-                            : null,
+                        photoUrl: user?.photoUrl,
+                        initials: firstName,
+                        onTap: () => context.go('/profile'),
                       ),
                       IconButton(
                         onPressed: () => context.push('/notifications'),

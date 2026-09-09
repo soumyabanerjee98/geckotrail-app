@@ -227,6 +227,23 @@ class ApiClient {
     }
   }
 
+  Future<T> postMultipart<T>(
+    String path, {
+    required FormData data,
+    required T Function(dynamic data) parser,
+  }) async {
+    try {
+      final response = await _dio.post<dynamic>(
+        path,
+        data: data,
+        options: Options(contentType: 'multipart/form-data'),
+      );
+      return parser(response.data);
+    } on DioException catch (e) {
+      throw _mapError(e);
+    }
+  }
+
   Future<T> patch<T>(
     String path, {
     Object? data,

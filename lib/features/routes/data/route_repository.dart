@@ -1,5 +1,9 @@
+import 'package:dio/dio.dart';
+
+import '../../../core/errors/app_exception.dart';
 import '../../../core/networking/api_client.dart';
 import '../../../shared/models/ride.dart';
+import '../../../shared/models/user.dart';
 
 class RouteRepository {
   RouteRepository(this._api);
@@ -8,7 +12,7 @@ class RouteRepository {
 
   Future<List<RouteAccess>> myRoutes() {
     return _api.get(
-      '/me/routes',
+      '/access/me/routes',
       parser: (data) {
         final list = data is List ? data : (data['items'] as List? ?? const []);
         return list
@@ -20,14 +24,14 @@ class RouteRepository {
 
   Future<RouteAccess> checkAccess(String trailId) {
     return _api.get(
-      '/routes/$trailId/access',
+      '/access/$trailId',
       parser: (data) => RouteAccess.fromJson(data as Map<String, dynamic>),
     );
   }
 
   Future<RouteGeometry> loadGeometry(String trailId) {
     return _api.get(
-      '/routes/$trailId/geometry',
+      '/access/$trailId/route',
       parser: (data) => RouteGeometry.fromJson({
         ...(data as Map<String, dynamic>),
         'trailId': trailId,
@@ -96,7 +100,7 @@ class NotificationRepository {
 
   Future<List<AppNotification>> list() {
     return _api.get(
-      '/notifications',
+      '/notifications/me',
       parser: (data) {
         final list = data is List ? data : (data['items'] as List? ?? const []);
         return list
@@ -115,7 +119,7 @@ class NotificationRepository {
 
   Future<void> registerDeviceToken(String token) async {
     await _api.post(
-      '/notifications/devices',
+      '/notifications/device-tokens',
       data: {'token': token, 'platform': 'fcm'},
       parser: (_) => true,
     );
@@ -135,17 +139,44 @@ class ProfileRepository {
     );
   }
 
-  Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> payload) {
+  Future<UserProfile> updateProfile(Map<String, dynamic> payload) {
     return _api.patch(
       '/users/me',
       data: payload,
-      parser: (data) => data as Map<String, dynamic>,
+      parser: (data) => UserProfile.fromJson(
+        data is Map<String, dynamic>
+            ? data
+            : Map<String, dynamic>.from(data as Map),
+      ),
+    );
+  }
+
+  /// Multipart photo upload. Backend should expose this (or alias) under users.
+  Future<UserProfile> uploadPhoto({
+    required String filePath,
+    required String fileName,
+  }) async {
+    final form = FormData.fromMap({
+      'photo': await MultipartFile.fromFile(filePath, filename: fileName),
+    });
+    return _api.postMultipart(
+      '/users/me/photo',
+      data: form,
+      parser: (data) {
+        if (data is Map<String, dynamic>) {
+          return UserProfile.fromJson(data);
+        }
+        if (data is Map) {
+          return UserProfile.fromJson(Map<String, dynamic>.from(data));
+        }
+        throw const AppException('Invalid photo upload response');
+      },
     );
   }
 
   Future<Map<String, dynamic>?> getFamiliarity(String trailId) {
     return _api.get(
-      '/trails/$trailId/familiarity',
+      '/familiarity/trails/$trailId',
       parser: (data) => data as Map<String, dynamic>?,
     );
   }
