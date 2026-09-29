@@ -48,7 +48,3 @@ app.*.map.json
 .env
 .env.local
 .env.*.local
-
-APP_FRONTEND_PROJECT_CONTEXT.md
-BACKEND_PROJECT_CONTEXT.md
-PROJECT_CONTEXT_MVP.md
