@@ -28,17 +28,19 @@ class Region extends Equatable {
     return Region(
       id: json['id'].toString(),
       name: json['name']?.toString() ?? '',
-      code: json['code']?.toString(),
+      code: json['slug']?.toString() ?? json['code']?.toString(),
       description: json['description']?.toString(),
       stateOrTerritory:
           json['stateOrTerritory']?.toString() ?? json['state']?.toString(),
       bestSeason: json['bestSeason']?.toString(),
-      safetyNotes: json['safetyNotes']?.toString() ??
+      safetyNotes:
+          json['safetyNotes']?.toString() ??
           json['safetyAndEcoNotes']?.toString(),
       terrainTypes: terrain is List
           ? terrain.map((e) => e.toString()).toList()
           : const [],
-      coverImageUrl: json['coverImageUrl']?.toString() ?? json['coverImage']?.toString(),
+      coverImageUrl:
+          json['coverImageUrl']?.toString() ?? json['coverImage']?.toString(),
     );
   }
 

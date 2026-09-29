@@ -1,0 +1,2 @@
+1. Region update and delete
+2. Trail add: autocomplete options for region from exisiting regions, option for GPX upload

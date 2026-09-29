@@ -10,7 +10,9 @@ class RegionRepository {
     return _api.get(
       '/regions',
       parser: (data) {
-        final list = data is List ? data : (data['items'] as List? ?? const []);
+        final list = data is List
+            ? data
+            : (data['regions'] as List? ?? const []);
         return list
             .map((e) => Region.fromJson(e as Map<String, dynamic>))
             .toList();
